@@ -1,0 +1,193 @@
+\PassOptionsToPackage{svgnames}{xcolor}
+\documentclass[twoside,palatino]{book}
+%% Preamble:
+
+% Set Watermark
+%\usepackage{draftwatermark}
+%\SetWatermarkText{\textmd{For PHPTR Review Only}}
+%\SetWatermarkColor[gray]{0.96}
+%\SetWatermarkScale{1.8}
+%\SetWatermarkAngle{315}
+
+% Load any macro files needed for this book:b
+\usepackage {epsfig}
+\usepackage {graphicx}
+\usepackage{listings}
+%\usepackage[bw,numbered,framed]{mcode}
+\usepackage[numbered,framed]{mcode}
+\usepackage {keyval}
+\usepackage {lscape}	
+\usepackage {makeidx}
+\usepackage{longtable}
+\usepackage {framed}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{lscape}
+\usepackage{enumerate}
+\usepackage{textcomp}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%================Add image in items ============
+\usepackage{enumitem}
+\newcommand*{\ImgItem}[1]{%
+  \raisebox{-.3\baselineskip}{%
+    \includegraphics[
+      height=\baselineskip, 
+      width=\baselineskip,
+      keepaspectratio]{#1}%
+  }%
+}
+\newcommand{\probitem}{\refstepcounter{enumi}\item[\ImgItem{monitor.png}~\theenumi.]}
+%==========================================
+\usepackage{hyperref}
+\hypersetup{pdfborder={0 0 0},
+	colorlinks=true,
+	linkcolor=DarkBlue,
+	citecolor=DarkBlue,
+	urlcolor=DarkBlue}
+\urlstyle{same}
+%\usepackage[number=none]{glossary}
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{format=plain, font=small, labelfont=bf}
+\captionsetup[table]{labelfont=bf, labelsep=newline}
+\usepackage{textcomp}
+\usepackage{epstopdf}
+\usepackage{stmaryrd}
+\usepackage{multirow}
+\usepackage{tabularx,ragged2e,booktabs,caption}
+\usepackage{array}
+\usepackage{afterpage}
+\usepackage{geometry}
+\usepackage{amsthm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%This algorithm package is added by Rahul
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tabularx,ragged2e,booktabs,caption}
+\usepackage{float,lscape}
+\usepackage{diagbox}
+\usepackage{makecell}
+\usepackage[chapter]{algorithm}
+\usepackage{algpseudocode}
+%\DeclareCaptionFormat{algorithm2e}{\vspace{0ex}{%
+% \parbox[c][0.9em][c]{\textwidth}{#1#2#3}}\par\rule{\linewidth}{-2.5pt}}
+%\captionsetup[algorithm]{format=plain, font=footnotesize, labelfont={footnotesize,bf}}
+\usepackage{titletoc}
+%\usepackage{tocloft}
+\algnewcommand{\algorithmicgoto}{\textbf{go to}}%
+\algnewcommand{\Goto}[1]{\algorithmicgoto~\ref{#1}}%
+\newcommand{\suchthat}{\;\ifnum\currentgrouptype=16 \middle\fi|\;}
+%\renewcommand{\thealgorithm}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%------For creating environment for examples, theorems etc..--------%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsthm,color}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{lipsum}
+\tcbuselibrary{skins,breakable}
+\usetikzlibrary{shadings,shadows}
+%
+%\newenvironment{myexampleblock}[1]{%
+%    \tcolorbox[beamer,%
+%    noparskip,breakable,
+%    colback=LightGreen,colframe=DarkGreen,%
+%    colbacklower=LimeGreen!75!LightGreen,%
+%    title=#1]}%
+%    {\endtcolorbox}
+%
+%\newenvironment{myalertblock}[1]{%
+%    \tcolorbox[beamer,%
+%    noparskip,breakable,
+%    colback=LightCoral,colframe=DarkRed,%
+%    colbacklower=Tomato!75!LightCoral,%
+%    title=#1]}%
+%    {\endtcolorbox}
+
+\newenvironment{myblock}[1]{%
+    \tcolorbox[beamer,%
+    noparskip,breakable,
+    colback=LightBlue,colframe=LightBlue,%
+    colbacklower=LightBlue,%
+    title=#1]}%
+    {\endtcolorbox}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Glossary PAckage
+\usepackage[acronym]{glossaries}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%           Setting up Example Environment
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{xcolor}
+\newcounter{example}
+\renewcommand{\theexample}{\thesection.\arabic{example}}
+
+%% define the style
+\mdfdefinestyle{example}{%
+    linecolor=blue,
+    outerlinewidth=1pt,
+    bottomline=true,
+    leftline=false,rightline=false,
+    skipabove=\baselineskip,
+    skipbelow=\baselineskip,
+    frametitle=\mbox{},
+}
+%% setup the environments
+%%% with number
+\newmdenv[%
+    style=example,
+    settings={\global\refstepcounter{example}},
+    frametitlefont={\bfseries Example~\theexample\quad},
+]{example}
+%%% without number (starred version)
+\newmdenv[%
+    style=example,
+    frametitlefont={\bfseries Example~\quad},
+]{example*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\qedsymbol{$\blacksquare$} %Dark square at the end of proof
+%\usepackage{marginnote}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%---------For adding Appendices at the end of each chapter-------%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{etoolbox}
+\pretocmd{\chapter}{\renewcommand\thesection{\thechapter.\arabic{section}}}{}{}
+\newcommand\appsection{%
+  \setcounter{section}{0}%
+  \renewcommand\thesection{\thechapter.\Alph{section}}}
+%--------------------------------------------------------------------------------
+%\newcolumntype{Y}{>{\centering\arraybackslash}X}
+%\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\numberwithin{algorithm}{subsection}
+%\makeindex
+%\makeglossary
+%\input table
+%\input mydefs
+%\input setps
+
+% New commands and/or command redefinitions
+%
+% You can also place such commands in a macro file (e.g. mydefs.tex)
+% and load them in the preamble with "input mydefs"
+% Here are some examples:
+
+\newcommand{\be}{\begin{equation}}           %---- begin numbered equation
+\newcommand{\ee}{\end{equation}}             %---- end numbered equation
+\newcommand{\dst}{\everymath{\displaystyle}} %---- use displaystle in eqs.
+\newcommand{\Nuclide}[2]{${}^{#2}$#1}        %---- Nuclide macro
+\renewcommand{\SS}[1]{${}^{#1}$}             %---- superscript in text
+\newcommand{\STRUT}{\rule{0in}{3ex}}         %--- small strut
+\newcommand{\dotprod}{{\scriptscriptstyle \stackrel{\bullet}{{}}}}
+
+%% Document Parts
+\newtheorem{eg}{Example}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]

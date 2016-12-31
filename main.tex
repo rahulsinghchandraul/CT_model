@@ -1,0 +1,58 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% A technical report on X-ray CT object and Measurement Models 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{./Head/packages_customize.tex}  % Contains custom packages, etc.
+\usepackage[toc,page]{appendix}
+%\usepackage[notloa]{tocbibind}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Files for this run:
+\includeonly{%cover,pseudo_title,preface, 
+./Head/title, 
+./Head/summary,
+./Head/abstract,
+./Head/abbreviations,
+./Head/notations,
+./Head/background,
+./Main_Sections/intro,
+./Main_Sections/model,
+./Main_Sections/conclusion,
+./Tail/appendix,
+./Tail/references,
+./Tail/Nomenclature,
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Document Begins
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\DeclareGraphicsExtensions{.pdf,.png,.gif,.jpg}
+%% Front Matter:
+\pagenumbering{roman}             % Roman numbering
+\setcounter{page}{1}              % Starting page number (specified by PH)
+\include{./Head/summary}
+\include{./Head/title}
+\include{./Head/abstract}
+\tableofcontents                  % Make Contents (comment out if not wanted)
+%\cleardoublepage                  % Add blank even-num page if necessary
+\parskip 0in                      % Reset to zero interpar spacing
+% --- Preface (if any) ---
+%% Main Text:
+\pagenumbering{arabic}		  % Arabic numbering
+\listoftables
+\listoffigures
+%\addcontentsline{toc}{chapter}{List of algorithms}
+%\include{title}
+\include{./Head/abbreviations}
+\include{./Head/notations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% MAIN: The Section of the Report
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{./Main_Sections/intro}
+\include{./Main_Sections/model}
+\include{./Main_Sections/conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% TAIL: Appendix, Bibliography, Index
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{./Tail/appendix}
+\include{./Tail/references}
+\end{document}
