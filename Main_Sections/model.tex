@@ -1,1 +1,345 @@
 \chapter{Object Models}
+
+\section{Bruno De Man and Johan Nuyts Papers}
+The research group of Bruno De Man and Johan Nuyts has a number of papers on the x-ray computed tomography. Among those, \cite{de1999metal}, \cite{de2000reduction} and \cite{de2001iterative} are some promising ones which can be quite helpful for reconstructing the conventional x-ray CT images, whereas \cite{nuyts1998iterative} discusses about the reconstruction of helical CT images  and \cite{nuyts2013modelling} is a review paper on modeling the physics in the iterative reconstruction for transmission computed tomography. However, \cite{de2001iterative} is the most cited one and it is the extended version of \cite{de2000reduction} and \cite{nuyts1997iterative}. It introduces a new algorithm-iterative maximum-likelihood (ML) polychromatic algorithm for computed tomography (IMPACT).
+
+\subsection{Modeling of Linear Attenuation Coefficient}
+
+The ultimate goal is to find the optimum distribution of linear attenuation coefficients $\left \{\mu_{j} \right \}_{j=1}^{J}$ from a given set of transmission measurements $\left \{y_{i} \right \}_{i=1}^{I}$, so that the following log-likelihood 
+function is maximized.
+
+%
+\begin{equation}
+\label{eq0}
+L =  \sum\limits_{i=1}^I \left[ \; y_i \; . \; ln(\widetilde{y}_{i}) - \widetilde{y}_{i} \; \right]
+\end{equation} where $y_{i}$ is described as a Poisson realization of $\widetilde{y}_{i}$ for which the acquisition model is given by
+
+\begin{equation}
+\label{eq1}
+\widetilde{y}_{i} =  b_{i} \; . \; exp \; \left( \; -\sum\limits_{j=1}^J \; l_{ij} \; . \; \mu_{j} \right)
+\end{equation} where $b_i$ is the number of photons that would be detected by detector $i$ in the absence of absorber and measured by a calibration scan. On the other hand, $l_{ij}$ is the effective intersection length of projection line $i$ with pixel $j$ and measured by the product of the interpolation coefficient and the row (or column) intersection length in the projection method. We know the step update equation for $\Delta \mu_{j}$ is 
+
+\begin{equation}
+\label{eq2}
+\Delta\mu_j \; = \; - \; \frac{\frac{\delta \textbf(L)}{\delta\mu_j} \; (\overrightarrow{\mu})}{\sum\limits_{h=1}^J \frac{\delta^{2}\textbf(L)}{\delta\mu_{j}\delta\mu_h}(\overrightarrow{\mu})}
+\end{equation}
+
+Now, calculating the derivative and double derivative of $L$ with respect to $\mu$, we can find the updated $\mu$ after the $n^{th}$ step, which is given by
+
+\begin{equation}
+\label{eq3}
+\mu_{j}^{n+1} = \mu_{j}^{n} + \frac{\sum\limits_{i=1}^I l_{ij} \; . \; \left( \; \widetilde{y}_{i} \; - \; {y}_{i} \; \right)}{\sum\limits_{i=1}^I l_{ij} \; . \; \left[ \; \sum\limits_{h=1}^J l_{ih} \; \right] \; . \; \widetilde{y}_{i}}
+\end{equation}
+
+Now, the IMPACT algorithm considers a more general acquisition model which is given by 
+
+\begin{equation}
+\label{eq4}
+\widetilde{y}_{i} = \sum\limits_{k=1}^K  b_{ik} \; . \; exp \; \left( \; -\sum\limits_{j=1}^J \; l_{ij} \; . \; \mu_{jk} \right)
+\end{equation} where $k$ is the energy index and $K$ is the total number of energies. $b_{ik}$ is the total energy detected by detector $i$ in the absence of absorber for incident photons of energy $E_{k}$. Though, $b_{ik}$ could be exploited to incorporate source fluctuation and the effect of the bow-tie filter, in this work, it is chosen to be independent and given by
+
+\begin{equation}
+\label{eq5}
+b_{ik}\; = \; I_{ik}\; . \; S_{k} \; . \; E_{k}
+\end{equation}
+
+The problem is that, now from \ref{eq4}, we have total $K \times J$ unknowns for the distribution of $\mu$ which would lead to poor convergence in comparison to \ref{eq1} where we had only $J$ unknowns. So, in this work, energy dependent linear attenuation coefficient $\mu (E)$ is approximated by a linear combination of a number of basic functions.
+
+\begin{equation}
+\label{eq6}
+\mu(E) \; = a_{1} \; f_{1}(E) \; + \; a_{2} \; f_{2}(E) \; + ... \; \; ... \; \; ... + a_{n} \; f_{n}(E)
+\end{equation}
+
+The previous literature considers the energy dependence $\Phi(E)$ of the photoelectric effect and the energy dependence $\Theta(E)$ of Compton scatter as the basic functions of the linear attenuation coefficients \cite{avrin1978clinical}, and thus the decomposition of $\mu_(E)$ is given by 
+
+\begin{equation}
+\label{eq7}
+\mu(E) \; = \phi \; . \; \Phi(E) \; + \; \theta \; . \; \Theta(E)
+\end{equation} where $\phi$ is the photo-electric coefficient and $\theta$ is the Compton coefficient. Now the the energy dependence of the photo-electric effect and the Compton scatter is approximated by
+
+\begin{equation}
+\label{eq8}
+\Phi(E) \; = \frac{1/E^{3}}{1/E_{0}^{3}}
+\end{equation}
+
+\begin{equation}
+\label{eq9}
+\Theta(E) \; = \frac{f_{KN}(E)}{f_{KN}(E_{0})}
+\end{equation} where $E_{0}$ is a reference energy and $f_{KN}(E)$ is the Klein-Nishina function, given by
+
+\begin{equation}
+\label{eq10}
+f_{KN}(E) \; = \frac{1 + \alpha}{\alpha^{2}} \; . \; \left[ \; \frac{2 \; . \; (1 + \alpha)}{1 + 2\alpha} - \frac{ln(1 + 2\alpha)}{\alpha} \right] \; + \; \frac{ln(1 + 2\alpha)}{2\alpha} \; - \; \frac{1 + 3\alpha}{(1 + 2\alpha)^{2}}
+\end{equation} where $\alpha \; = \; E/511 keV$.
+
+\begin{table}[]
+\centering
+ \begin{tabular}{|c|c|c|c|} 
+ \hline
+ Substances & $\theta (1/cm)$ & $\phi (1/cm)$ & $\mu_{70keV} (1/cm)$ \\ \hline
+ air & 0.0002  & 1.7e-05 & 0.0002 \\  \hline
+ soft tissue & 0.1777  & 0.0148 & 0.1935 \\ \hline
+ blood & 0.1778  & 0.0154 & 0.1942 \\  \hline
+ water & 0.1793  & 0.0144 & 0.1946 \\  \hline
+ muscle & 0.1793 & 0.0155 & 0.2032 \\ \hline
+ bone & 0.3109  & 0.1757 & 0.4974 \\  \hline
+ Ti & 0.7189  & 1.8201 & 2.6536 \\  \hline
+ Fe & 1.3904  & 5.3273 & 7.0748 \\  \hline
+\end{tabular}
+\caption{Photoelectric coefficient $\phi$, Compton coefficient $\theta$ and monochromatic linear attenuation coefficient $\mu_{70keV}$ for a number of common substances}
+\label{table1}
+\end{table}
+
+Now, for any known substance we can know $\mu(E)$, and at any energy level, we can also know $\Phi(E)$ and $\Theta(E)$ from \ref{eq8}-\ref{eq10}. Next, we can fit the least square method in \ref{eq7} after discretization into K energy levels to find the values of the coefficients $\phi$ and $\theta$. It is obvious that $\phi$ and $\theta$ actually represent the photoelectric part and the Compton scatter part of the attenuation at energy, $E = E_{0} = 70 keV$. Some calculated values are shown in Table \ref{table1} for some common substances. However, after discretizing \ref{eq7}, we get 
+
+\begin{equation}
+\label{eq11}
+\mu_{jk} \; = \phi_{j} \; . \; \Phi_{k} \; + \; \theta_{j} \; . \; \Theta_{k}
+\end{equation} where $\Phi_k$ and $\Theta_k$ are known values representing the energy dependence of $\mu_{jk}$; and $\phi_j$ and $\theta_j$ represent the material dependence and are unknown. However, the acquisition model of \ref{eq4} becomes 
+
+\begin{equation}
+\label{eq12}
+\widetilde{y}_{i} = \sum\limits_{k=1}^K  b_{ik} \; . \; exp \; \left( \; -\sum\limits_{j=1}^J \; l_{ij} \; . \; \phi_{j} \; . \; \Phi_{k} \;  -\sum\limits_{j=1}^J \; \theta_{j} \; . \; \Theta_{k} \right)
+\end{equation} where the unknowns are $\left \{\phi_{j} \right \}_{j=1}^{J}$ and $\left \{theta_{j} \right \}_{j=1}^{J}$, so the number of unknowns are $2J$ instead of $K \times J$.
+
+\begin{figure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3.1 in]{"deman1"}
+  \caption{}
+  \label{deman1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3.1 in]{"deman2"}
+  \caption{}
+  \label{deman2}
+\end{subfigure}
+\caption{Monochromatic linear attenuation coefficient $\mu_{70keV}$ versus $\phi$ (red) and  $\theta$ (blue) (a) for various substances and (b) for the base substances (air, water, bone and Iron) only}
+\label{fig}
+\end{figure}
+
+
+In this paper, some base substances have been considered, which are air, water, bone and iron. It is assumed that in the $\mu\sim\phi$ or $\mu\sim\theta$ graphs like in fig. \ref{deman1} all the substances follow the piece-wise linear graphs which are created by the base-substances. It indicates that, at any pixel $j$, the coefficients can be written as the linear combination of the coefficients of the adjacent base-substances. Thus, for a given $\mu_j$, we can use the piece-wise linear functions to find the photo-electric coefficients and Compton coefficients. It means that $\phi_j$ and $\theta_j$ can be substituted as $\phi(\mu_j)$ and $\theta(\mu_j)$ which leads the acquisition model to be like \ref{eq13}.
+
+\begin{equation}
+\label{eq13}
+\widetilde{y}_{i} = \sum\limits_{k=1}^K  b_{ik} \; . \; exp \; \left(- \; \Phi_{k} \;  \; \sum\limits_{j=1}^J \; l_{ij} \; \phi(\mu_j) \; . \; -  \Theta_{k} \sum\limits_{j=1}^J \; l_{ij} \; \theta(\mu_j) \; . \; \right)
+\end{equation} where $\phi(\mu_j)$ and $\theta(\mu_j)$ are known functions of $\mu_j$ which represents the monochromatic linear attenuation coefficient at $70keV$. Thus, the unknown is $\left \{\mu_{j} \right \}_{j=1}^{J}$, which means that the number of unknowns is $J$, as like as in \ref{eq1}. However, the update equation for $\left \{\mu_{j} \right \}_{j=1}^{J}$ can be derived using \ref{eq2} and \ref{eq13}, which is given by-
+
+\begin{equation}
+\label{eq14}
+\mu_{j}^{n+1} = \mu_{j}^{n} + \frac{\phi_{j}^{'} \; . \; \sum\limits_{i=1}^I \; l_{ij} \; c_i \; Y_{i}^{\Phi} \; + \; \theta_{j}^{'} \; . \; \sum\limits_{i=1}^I \; l_{ij} \; c_i \; Y_{i}^{\Theta} }{\phi_{j}^{'} \; . \; \sum\limits_{i=1}^I \; l_{ij} \; M_i \; +  \;  \sum\limits_{i=1}^I \; l_{ij} \; N_i}
+\end{equation}
+
+\subsection{Summary}
+
+The key points of the previously described modeling of the linear attenuation coefficients in the IMPACT algorithm are presented below-
+
+\begin{itemize}
+
+  \item This algorithm assumed the approximation of the energy dependent linear attenuation coefficients by a linear combination of basic functions corresponding to photoelectric effect and Compton scattering. Least square method has been applied to a previously available database to find the photo electric coefficients $\phi$ and Compton coefficients $\theta$ in \ref{eq7}.
+  
+  \item After observing the $\mu\sim\theta$ and $\mu\sim\phi$ graphs for various substances, four base substances have been chosen which are air, water, bone and iron and every pixel is assumed to contain a mixture of two adjacent base substances.
+  
+  \item This algorithm can deal with multiple materials/substances. At any energy index $k$, the energy dependence of photoelectric effect and Compton scattering can be found using \ref{eq8}-\ref{eq10}. And, at any pixel $j$, the photoelectric coefficients and the Compton coefficients can be calculated using the graph in fig. \ref{deman2}.
+   
+\end{itemize}
+
+\section{Charles Addison Bouman Papers}
+
+The research group of Charles Addison Bouman has also some very well-known papers on the reconstruction of X-ray CT images. Among those, \cite{hsieh2013recent} describes about the recent advancements of CT image reconstruction where he mentioned about two types of basic reconstruction approaches, which are analytical approaches and the iterative approaches. In \cite{thibault2007three}, \cite{yu2011fast} and \cite{venkatakrishnan2016phantom}, the authors discuss mostly about the helical CT reconstructions. Now, we are actually going to discuss about the object and measurement modelling mentioned in \cite{jin2015model} and \cite{zhang2014model}.
+
+\subsection{Modeling of Linear Attenuation Coefficient}
+
+The received photon intensity of the $i^{th}$ projection is denoted by $y_{i}$ and is modeled as a Poisson random variable with the mean given by
+
+\begin{equation}
+\label{eq15}
+\widetilde{y}_{i} = \mathbb{E} \left[ y_i\mid\mu(\mathcal{E}) \right] = \int_{\mathbb{R}} S_i(\mathcal{E}) \; . \; exp \left( - \sum\limits_{j=1}^J l_{ij} \mu_j(\mathcal{E}) \right) d\mathcal{E}
+\end{equation} where $S_i(\mathcal{E})$ is the source-detector energy spectrum. For each projection, the standard log-converted CT projection \cite{nuyts2013modelling} measurement $Y_i$ is generated by
+
+\begin{equation}
+\label{eq16}
+Y_i = - \; log \left( \frac{y_i}{\widetilde{b}_{i}} \right) 
+\end{equation} where $\widetilde{b}_{i}$ is the expected photon intensity in an air-calibration scan for the $i^{th}$ projection, given by-
+
+
+\begin{equation}
+\label{eq17}
+\widetilde{b}_{i} = \int_{\mathbb{R}} S_i(\mathcal{E}) \; d\mathcal{E}
+\end{equation} and then we can normalize the energy spectrum as $\widetilde{S}_{i}(\mathcal{E})$ given by
+
+\begin{equation}
+\label{eq18}
+\widetilde{S}_{i}(\mathcal{E}) = \frac{S_i(\mathcal{E})}{\widetilde{b}_{i}}
+\end{equation} It is assumed that $\widetilde{S}_{i}(\mathcal{E})$ is the same for all the projections, and that's why, the projection index $i$ is dropped in $\widetilde{S}_{i}(\mathcal{E})$ , and thus, from \ref{eq16} it can be written that-
+
+\begin{equation}
+\label{eq19}
+\widetilde{Y}_{i} = \mathbb{E} \left[ Y_i\mid\mu(\mathcal{E}) \right] =  - \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left( - \sum\limits_{j=1}^J l_{ij} \mu_j(\mathcal{E}) \right) d\mathcal{E}  \right]
+\end{equation} which is the conventional model for the non-linear beam hardening that results from a poly-energetic X-ray beam.
+
+Now, the objective is to formulate a simple parametric model of the beam-hardening that occurs with a single, poly-chromatic scan of an object composed of two distinct materials, one with high density and the other with low. For doing this, a new variable is introduced as $x_j$ which is defined by the weighted average of the linear attenuation coefficient of the $j^{th}$ pixel with respect to the energy spectrum
+
+\begin{equation}
+\label{eq20}
+x_{j} = \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \mu_j(\mathcal{E}) \; d\mathcal{E}
+\end{equation} which would help us to re-write the linear attenuation coefficient of the $j^{h}$ pixel as
+
+\begin{equation}
+\label{eq21}
+\mu_{j}(\mathcal{E}) = x_j r_j(\mathcal{E})
+\end{equation} where $r_j(\mathcal{E})$ is the absorption spectrum of the $j^{th}$ pixel. So, we can write 
+
+\begin{equation}
+\label{eq22}
+r_j(\mathcal{E})=\frac{\mu_j(\mathcal{E})}{\int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \mu_j(\mathcal{E}) \; d\mathcal{E}}
+\end{equation} which indicates that the energy spectrum of $r_j$ is normalized to 1, so for all $j$ 
+
+\begin{equation}
+\label{eq23}
+\int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) r_j(\mathcal{E}) \; d\mathcal{E} = 1
+\end{equation}
+
+Now, if the simple case is considered when the scanned object contains only one absorptive material denoted by $\mathcal{M}$, then $r_j(\mathcal{E})$ is identical for all pixels $j$, and we can write
+
+\begin{equation}
+\label{eq24}
+\mu_{j}(\mathcal{E}) = x_j r_\mathcal{M}
+\end{equation} where $r_\mathcal{M}$ is the absorption spectrum for the material $\mathcal{M}$. Thus, from \ref{eq19}, we can write the beam hardening function $f_\mathcal{M}(p_i)$ as
+
+\begin{equation}
+\label{eq25}
+f_\mathcal{M}(p_i) = - \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left(- r_\mathcal{M}(\mathcal{E}) p_i  \right) d\mathcal{E}  \right]
+\end{equation} where $p_i$ is the $i^{th}$ projection given by
+
+
+\begin{equation}
+\label{eq26}
+p_i = \sum\limits_{j=1}^J l_{ij} x_j
+\end{equation} and thus we can write
+
+\begin{equation}
+\label{eq27}
+\widetilde{Y}_{i} = \mathbb{E} \left[ Y_i\mid x \right] = f_\mathcal{M}(p_i) 
+\end{equation} 
+ 
+ 
+Next, we can consider another case where the object is made of two different materials, one of low density and a second of high density. Here, the absorption spectrum $r_j(\mathcal{E})$ is modelled as a convex combination of two distinct absorption spectra given by
+
+
+\begin{equation}
+\label{eq28}
+r_j(\mathcal{E})= (1-b_j)r_L(\mathcal{E}) + b_j r_H(\mathcal{E})
+\end{equation} where $r_L(\mathcal{E})$ and $r_H(\mathcal{E})$ represent  the absorption spectrum of ``low'' and ``high'' density materials respectively, and $b_j$ represents the fraction of material that is of high density for the $j^{th}$ pixel. Using this model, the linear attenuation coefficient of the $j^{th}$ pixel can be written as- 
+
+\begin{equation}
+\label{eq29}
+\mu_j(\mathcal{E})= x_j \left[(1-b_j)r_L(\mathcal{E}) + b_j r_H(\mathcal{E})\right]
+\end{equation}
+
+In this work, only the binary case, i.e. $b_j \in \left\lbrace 0 , 1 \right\rbrace $; is considered, so each pixel will be composed entirely of either low or high density materials. The value of $b_j$ is directly estimated from the CT data as a part of the reconstruction process. So, from \ref{eq19}, it can be written that 
+
+\begin{equation}
+\label{eq30}
+\widetilde{Y}_{i} = \mathbb{E} \left[ Y_i\mid\ x \right] =  h \left( p_{L,i} , p_{H,i} \right)
+\end{equation} which indicates that the expected projection measurement is now a non-linear function of two dimensional projections of the two materials where $h \left( p_{L,i} , p_{H,i} \right)$ is now a two dimensional beam hardening function given by
+
+\begin{equation}
+\label{eq31}
+h \left( p_{L,i} , p_{H,i} \right) = - \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left\lbrace - r_L(\mathcal{E}) p_{L,i} - r_H(\mathcal{E}) p_{H,i} \right\rbrace d\mathcal{E}  \right]
+\end{equation} and $p_{L,i}$ and $p_{H,i}$ are the projections of the low and high density materials, respectively, given by
+
+\begin{equation}
+\label{eq32}
+p_{L,i} = \sum\limits_{j=1}^J l_{ij} x_j (1-b_j)
+\end{equation} 
+
+\begin{equation}
+\label{eq33}
+p_{H,i} = \sum\limits_{j=1}^J l_{ij} x_j b_j  
+\end{equation}
+
+Now the idea is to adaptively estimate this 2D beam hardening function during the reconstruction process. To do this, from some previous ideas that are available in the literature, the function is parameterized by a simple polynomial as
+
+\begin{equation}
+\label{eq34}
+h \left( p_{L,i} , p_{H,i} \right) = \sum\limits_{k=0}^\infty \; \sum\limits_{l=0}^\infty \gamma_{k,l} \; \left(p_{L,i}\right)^{k} \; \left(p_{H,i}\right)^{l}
+\end{equation} where $\gamma_{k,l}$ are the coefficients to be jointly estimated during the reconstruction, among which some of the first values can be calculated using \ref{eq34}. The model would be refereed as $p^{th}$ ordered if the condition, $0 \leq k+l \leq p$, holds for all the unknown coefficients.
+
+
+% \begin{table}[]
+% \centering
+% \begin{tabular}{|c|c|c|c|c|} 
+% \hline
+% index & $l=0$ & $$l=1$$ & $$l=2$$ & $l=3$ \\ \hline
+% $k=0$ & 0  & 1 & $\gamma_{0,2}$ & $\gamma_{0,3}$\\  \hline
+% $k=1$ & 1  & $\gamma_{1,1}$ & $\gamma_{1,2}$ & $\gamma_{1,3}$\\ \hline
+% $k=2$ & $\gamma_{2,0}$  & $\gamma_{2,1}$ & $\gamma_{2,2}$ & $\gamma_{2,3}$\\  \hline
+% $k=3$ & $\gamma_{3,0}$  & $\gamma_{3,1}$ & $\gamma_{3,2}$ & $\gamma_{3,3}$\\  \hline
+% 
+% \end{tabular}
+% \caption{Coefficients of the Beam Hardening Function $h$ used for un-corrected data}
+% \label{notable1}
+% \end{table}
+
+This two material beam-hardening model can also be used in the case when the projection measurement is pre-corrected for beam hardening of a single material. If the projection measurements have been pre-corrected with respect to the material $\mathcal{M}$ using the function $f_{\mathcal{M}}^{-1}$, then after the pre-correction, the expected projection measurement is approximately given by
+
+\begin{equation}
+\label{eq35}
+\widetilde{Y}_{i} = \mathbb{E} \left[ Y_i\mid x) \right] = \widetilde{h} \left( p_{L,i} , p_{H,i} \right)
+\end{equation} where the 2D beam hardening function is given by
+
+\begin{equation}
+\label{eq36}
+\widetilde{h} \left( p_{L,i} , p_{H,i} \right) = f_{\mathcal{M}}^{-1} \; . \;\left(- \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left\lbrace - r_L(\mathcal{E}) p_{L,i} - r_H(\mathcal{E}) p_{H,i} \right\rbrace d\mathcal{E}  \right] \right)
+\end{equation}. Thus using the same method as in \ref{eq34}, we can write-
+
+\begin{equation}
+\label{eq37}
+\widetilde{h} \left( p_{L,i} , p_{H,i} \right) = \sum\limits_{k=0}^\infty \; \sum\limits_{l=0}^\infty \widetilde{\gamma}_{k,l} \; \left(p_{L,i}\right)^{k} \; \left(p_{H,i}\right)^{l}
+\end{equation} where $\widetilde{\gamma}_{k,l}$ are the coefficients. In medical applications, it is common to pre-correct the projection measurements, $Y_i$, and this correction is usually based on a water phantom since human soft tissue is largely composed of water. Thus, here the pre-correction is given by $f_{\mathcal{M}}^{-1} = f_{L}^{-1}$ where $f_{L}^{-1}$ is the ideal beam hardening correction for the low density material. Thus, this pre-correction will linearize the low density measurement as
+
+\begin{equation}
+\label{eq38}
+\widetilde{h} \left( p_{L,i} , 0 \right) =  f_{L}^{-1} \left( f_{L} (p_{L,i}) \right) = p_{L,i}
+\end{equation} which indicates that $\widetilde\gamma_{k,0} = 0$ for $k \neq 1$, which are mentioned in table \ref{table2}. Thus, for example, if a $3^{rd}$ order model $(p = 3)$ is considered, then $0 \leq k+l \leq 3$, so there would be total five unknown coefficients for $\widetilde\gamma_{k,l}$ where $(k , l) \in \left\lbrace (1 , 1), (2 , 1), (0 , 2), (1 , 2), (0 , 3) \right\rbrace $.
+
+\begin{table}[]
+\centering
+ \begin{tabular}{|c|c|c|c|c|} 
+ \hline
+  index & $l=0$ & $$l=1$$ & $$l=2$$ & $l=3$ \\ \hline
+ $k=0$ & 0  & 1 & $\widetilde\gamma_{0,2}$ & $\widetilde\gamma_{0,3}$\\  \hline
+ $k=1$ & 1  & $\widetilde\gamma_{1,1}$ & $\widetilde\gamma_{1,2}$ & $\widetilde\gamma_{1,3}$\\ \hline
+ $k=2$ & 0  & $\widetilde\gamma_{2,1}$ & $\widetilde\gamma_{2,2}$ & $\widetilde\gamma_{2,3}$\\  \hline
+ $k=3$ & 0  & $\widetilde\gamma_{3,1}$ & $\widetilde\gamma_{3,2}$ & $\widetilde\gamma_{3,3}$\\  \hline
+ 
+\end{tabular}
+\caption{Coefficients of the Beam Hardening Function $h$ used for pre-corrected data}
+\label{table2}
+\end{table} 
+
+Finally, if $y \in \mathbb{R}^I$ is the vector of the projection measurements, $x \in \mathbb{R}^J$ is the image vector, $b \in {\left\lbrace 0 , 1 \right\rbrace}^J $ be the vector of the material segmentation label mask, and $\gamma \in \mathbb{R}^K$ be the vector of fitting coefficients $\gamma_{k,l}$ (for a 3rd order model, K=5), then the formulation of the problem of simultaneous image reconstruction and beam hardening correction as the computation of maximum a posterior (MAP) estimate is given by-
+
+\begin{equation}
+\label{eq39}
+\left\lbrace  \widehat{x} , \widehat{b} , \widehat{\gamma} \right\rbrace =  arg \; min_{x \geq 0, b,\gamma} \left\lbrace - log \; \mathbb{P} (y \mid x,b,\gamma) - log \; \mathbb{P} (x,b) \right\rbrace
+\end{equation} where $\mathbb{P} (y \mid x,b,\gamma)$ is the likelihood function corresponding to X-ray forward model, and $\mathbb{P} (x,b)$ is the joint prior distribution over $x$ and $b$.
+
+\subsection{Summary}
+
+The key points of the previously described method are mentioned below-
+
+\begin{itemize}
+
+  \item This algorithm assumed that the object  is formed by a combination of two distinct materials that can be separated based on their densities. A poly energetic X-ray forward model is formulated using a polynomial function of two material projections: one for the low density material and the other for the high.
+  
+  \item The linear attenuation coefficient is modeled as \ref{eq29} where $r_L(\mathcal{E})$ and $r_H(\mathcal{E})$ represent  the absorption spectrum of ``low'' and ``high'' density materials respectively, $b_j$ represents the fraction of material that is of high density for the $j^{th}$ pixel and $x_j$ is described by \ref{eq20}.
+  
+  \item To obtain a multi-material beam hardening model, a simple polynomial has been considered in \ref{eq34}, where the coefficients of the polynomial are $\gamma_{k,l}$. Some of the first coefficients of $\gamma$ are constant and pre-determined. The number of total coefficients depends on the approximation of the polynomial order considered for the experiment.
+  
+  \item The objective function is described in \ref{eq39} where after the minimization of the objective value, along with the optimum image $x$, the optimum material segmentation mask $b$ and the parameter vector $\gamma$, are also estimated.
+   
+\end{itemize}
