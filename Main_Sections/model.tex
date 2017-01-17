@@ -211,7 +211,7 @@ Now, if the simple case is considered when the scanned object contains only one 
 
 \begin{equation}
 \label{eq25}
-f_\mathcal{M}(p_i) = - \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left(- r_\mathcal{M}(\mathcal{E}) p_i  \right) d\mathcal{E}  \right]
+f_\mathcal{M}(p_i) = - \; log \left[ \int_{\mathbb{R}} \widetilde{S}(\mathcal{E}) \; . \; exp \left\lbrace - r_\mathcal{M}(\mathcal{E}) p_i  \right\rbrace d\mathcal{E}  \right]
 \end{equation} where $p_i$ is the $i^{th}$ projection given by
 
 
@@ -341,5 +341,234 @@ The key points of the previously described method are mentioned below-
   \item To obtain a multi-material beam hardening model, a simple polynomial has been considered in \ref{eq34}, where the coefficients of the polynomial are $\gamma_{k,l}$. Some of the first coefficients of $\gamma$ are constant and pre-determined. The number of total coefficients depends on the approximation of the polynomial order considered for the experiment.
   
   \item The objective function is described in \ref{eq39} where after the minimization of the objective value, along with the optimum image $x$, the optimum material segmentation mask $b$ and the parameter vector $\gamma$, are also estimated.
+   
+\end{itemize}
+
+
+\section{Jeffrey A. Fessler Papers}
+
+The research group of Jeffrey A. Fessler has a number of very well-known papers on the iterative reconstruction of X-ray CT images too \cite{erdogan1999ordered}, \cite{erdogan2002monotonic}, \cite{elbakri2001statistical}, \cite{elbakri2002statistical}, \cite{elbakri2003segmentation}, \cite{srivastava2005simplified}, \cite{abella2009new} and \cite{fessler1998paraboloidal}. Among those, the processes of modeling of linear coefficients, mentioned in \cite{elbakri2002statistical} and \cite{elbakri2003segmentation}, are discussed here. The first one uses segmentation for the pixels whereas the later one does not.
+
+\subsection{Mono-energetic Model}
+
+First, the projection measurement $y_i$ recorded by the $i$th detector would be given by-
+\begin{equation}
+\label{eq40}
+y_i = I_i (\mathcal{E}) \; exp \; \left\lbrace - \int_{L_i} \mu (x,y,z, \mathcal{E}) dl \right\rbrace
+\end{equation} whereas under the assumption of a mono-energetic model, the measurement simplifies to Beer's law
+
+\begin{equation}
+\label{eq41}
+y_i = I_i (\mathcal{E}_0) \; exp \; \left\lbrace - \int_{L_i} \mu (x,y,z, \mathcal{E}_0) dl \right\rbrace
+\end{equation} where $\mu (x,y,z, \mathcal{E}_0)$ characterizes the overall attenuation property of an object which depends on the spatial coordinates $(x,y,z)$ and $\mathcal{E}$, and has the units of inverse distance. The following statistical model has been assumed for the measurements-
+
+\begin{equation}
+\label{eq42}
+y_i \; \sim \;  Poisson \; \left\lbrace b_i e^{-\left[ \textbf{A}\mu \right]_i} \right\rbrace
+\end{equation} where $b_i = I_i (\mathcal{E}_0)$ is the black scan factor and $N$ is the number of measured rays. The notation $\left[\textbf{A}\mu \right]_i = \sum\limits_{j=1}^p a_{ij}\mu_j$ represents the $i$th line integral and the $N \times p$ matrix $\textbf{A} = \left\lbrace a_{ij} \right\rbrace$ is the system matrix which accounts for the system geometry as well as other significant physical effects such as detector response. For ray $i$ and pixel $j$, $a_{ij}$ is the area of overlap between the ray beam and the pixel, normalized by the detector width, and has units of length. The constants $\left\lbrace b_i \right\rbrace$ and $\left\lbrace a_{ij} \right\rbrace$ are non-negative and known.
+
+Now to estimate the attenuation coefficient vector $\mu$, the Poisson log-likelihood based estimation approach has been chosen which is given by
+
+\begin{equation}
+\label{eq43}
+L (\mu) \; = \; \sum\limits_{i=1}^N  \; \left\lbrace y_i \; log \left( b_i e^{-\left[ \textbf{A}\mu \right]_i}\right) - \left( b_i e^{-\left[ \textbf{A}\mu \right]_i}\right) \right\rbrace
+\end{equation} 
+
+When $\textbf{A}$ has full column rank and the data is noise free, maximizing the likelihood would give a perfect result. In reality, the data is noisy and ML will give a very noisy reconstruction due to the ill-posedness of the problem, hence, regularization is needed here which is a penalty term that penalizes difference in the values of neighboring pixels and is given by
+
+\begin{equation}
+\label{eq44}
+R (\mu) \; = \; \sum\limits_{j=1}^p \sum\limits_{k \in \mathcal{N}_j} \psi (\mu_j - \mu_k)
+\end{equation} where $\mathcal{N}_j$ is some neighborhood of pixel $j$ and $\psi$ is a potential functions. The convex edge preserving Huber penalty is given by 
+
+\[
+    f(x)= 
+\begin{cases}
+    \frac{x^2}{2}, \; \; \;  \; \; \; \; \; \; \; \; \; \; \;  \; \; \, \; \; \; \;  x \leq \delta\    \\    \delta \mid x \mid - \frac{\delta^{2}}{2} , \; \; \; \; \; \; \; \;   x \geqslant \delta
+\end{cases}
+\]
+
+Combining the likelihood with a penalty gives the objective function
+
+\begin{equation}
+\label{eq45}
+\Phi_1(\mu) = L(\mu)-\beta R(\mu)
+\end{equation} where $\beta$ is a scalar that controls the trade-off between the data-fit and the penalty terms. Now, the negative log-likelihood can be written as-
+
+\begin{equation}
+\label{eq46}
+-\,L(\mu) = \sum\limits_{i=1}^N g_i \left( \left[ \textbf{A}\mu \right]_i \right)
+\end{equation} where $g_i(l)$ is given by
+
+\begin{equation}
+\label{eq47}
+g_i(l) = - Y_i log\left( b_i e^{-l}\right) + b_i e^{-l}
+\end{equation} where a second-order Taylor's expansion to $g_i(l)$ around an estimate $\widehat{l}_i$ of the line integral yields
+
+\begin{equation}
+\label{eq48}
+g_i(l) \approx g_i(\widehat{l}_i) + \dot{g}_i(\widehat{l}_i) (l-(\widehat{l}_i))+ \frac{\ddot{g}_i (\widehat{l}_i)}{2}(l-\widehat{l}_i)^2
+\end{equation} and now from \ref{eq16} we can write about the estimate of the line-integral as-
+
+\begin{equation}
+\label{eq49}
+\widehat{l}_i =  log\left( \frac{b_i}{y_i} \right)
+\end{equation} and utilizing this value, \ref{eq48} gives the following approximation as
+
+\begin{equation}
+\label{eq50}
+g_i(l) \approx \left( y_i - y_i log (y_i) \right) + \,\frac{y_i}{2}(l-\widehat{l}_i)^2
+\end{equation} where the firsts term is independent of $l$, and thus, from \ref{eq45} and \ref{eq46}, it can be written as
+
+\begin{equation}
+\label{eq51}
+\Phi_2(\mu) = - \Phi_1(\mu) = \sum\limits_{i=1}^N \frac{y_i}{2} \left( \left[ \textbf{A}\mu \right]_i - \widehat{l}_i \right)^2 + \beta R(\mu) 
+\end{equation}
+
+Now, the goal of the reconstruction technique becomes to maximize $\Phi_1(\mu)$ or minimize $\Phi_2(\mu)$ subject to certain object constrains (such as non-negativity) which is represented mathematically by 
+
+\begin{equation}
+\label{eq52}
+\widehat{\mu} = \underset{\mu \geqslant 0 }{arg \; max} \; \; \Phi_1(\mu) = \underset{\mu \geqslant 0 }{arg \; min} \; \; \Phi_2(\mu)
+\end{equation}
+
+\subsection{Poly-energetic Model}
+
+The algorithm derived for the mono-energetic model ignores the poly-energetic nature of the x-ray beam and the energy dependence of the attenuation coefficient which results in non-linear beam hardening. It leads to a reduction in the reconstructed attenuation coefficient. For this reason, poly-energetic model has been introduced and an iterative reconstruction algorithm has been developed.
+
+\subsubsection{Pre-Segmented Model}
+
+It is assumed that the object is comprised of $K$ known non-overlapping material types. For the $k$ material type, the attenuation coefficient of the $j$th voxel is modeled by the product of the energy-dependent mass attenuation coefficient $m_k(\mathcal{E})$(known) and energy independent density $\rho_j$, which can be expressed as
+
+\begin{equation}
+\label{eq53}
+\mu_j(\mathcal{E}) = \sum \limits_{k=1}^K m_k(\mathcal{E}) \rho_j f_{j}^{k}(\rho_j)
+\end{equation} where $f_{j}^{k}(\rho_j) = 1$ if the $j$th voxel belongs to the $k$th material type and $f_{j}^{k}(\rho_j) = 0$ otherwise. In this aspect, according to \ref{eq15}, the mean of the measured data along the path $L$ is given by
+
+\begin{equation}
+\label{eq54}
+\widetilde{y}_{i} = \mathbb{E}(y_i) = \int I_i(\mathcal{E}) \; . \; exp \left( - \sum\limits_{j=1}^p \sum \limits_{k=1}^K m_k(\mathcal{E}) \rho_j a_{ij} f_{j}^{k}(\rho_j) \right) d\mathcal{E}
+\end{equation}
+
+Thus, using \ref{eq43}, we get the negative log-likelihood in the poly-energetic case as
+
+\begin{equation}
+\label{eq55}
+- L (\rho) = \sum\limits_{i=1}^I \; - \; y_i \, . \, ln(\widetilde{y}_{i}) + \widetilde{y}_{i} \;
+\end{equation} which would be used in the following equation to get the optimum $\rho$.
+
+\begin{equation}
+\label{eq56}
+\widehat{\rho} = \underset{\rho \geqslant 0 }{arg \; max} \; \; \Phi_1(\rho) = \underset{\rho \geqslant 0 }{arg \; min} \; \; \Phi_2(\rho)
+\end{equation}
+
+
+\subsubsection{Segmentation-Free Model}
+
+The difference between the pre-segmented model and the segmentation free model is that in the first case, the condition was $f_{j}^{k}$ was equal to  $0$ or $1$; but, now this tissue function can be fraction also. For simplicity, we just need to have $f_{j}^{k}(\rho_j) \geqslant 0$ and $\sum \limits_k  f_{j}^{k}(\rho_j) = 1$ for all $j$. 
+
+From fig. \ref{fesmactable}, it can be seen that most of the soft tissues like ovary, brain, muscle, lung or blood, have spectral characteristics that are almost identical to those of water. Fat and breast tissue differ somewhat from water, and bone is significantly different. Because a soft tissues are spectrally similar to water, and have densities (0.95-1.06 g/cc) close to that of water, it is reasonable to use water as a base substance, and obviously, cortical bone is another natural choice for a base substance. The model could be augmented to include more base substances such as Iodine. 
+
+
+\begin{figure}
+\centering
+\includegraphics[width=3 in]{"mac_table"}
+\caption{Mass attenuation coefficients of various human tissues normalized at 40 keV}
+\label{fesmactable}
+\end{figure}
+
+However, for bone and water, the attenuation coefficient of tissue is modeled as-
+
+\begin{equation}
+\label{eq57}
+\mu_j(\mathcal{E}) \approx \left[ m_w(\mathcal{E}) f_{w}^{j}(\rho_j) + m_b(\mathcal{E}) f_{b}^{j}(\rho_j) \right] \, . \,\rho_j 
+\end{equation} where $m_w(\mathcal{E})$ and $m_b(\mathcal{E})$ are the known mass attenuation coefficients of water and bone, respectively. The pixel tissue fraction functions $f_w^{j}$ and $f_b^{j}$ determine what extent the tissue in pixel $j$ is spectrally water-like or bone-like, depending on the tissue density. 
+
+
+\begin{equation}
+\label{eq58}
+m(\mathcal{E}) = m_w(\mathcal{E})\,f_w + m_b(\mathcal{E})\,f_b
+\end{equation}  
+
+Now the weighted least squares algorithm has been applied in the \ref{eq57} to compute the coefficients $f_w$ and $f_b$ for the biological substances listed in fig. \ref{fesmactable} imposing two more constraints. First, the solutions should be in the interval $[0,1]$ and second, the sum of the solutions $f_w$ and $f_b$ would be unity. The results are listed in table \ref{table3} where it is observed that $f_w$ is almost $1.0$ for soft tissues and $0.0$ for bone which confirms that the soft tissues are spectrally similar to water and water and bone can be used as distinct base substances. Now, in this paper, two models have been introduced to obtain the optimum solutions for $f_w(\rho)$ and $f_b(\rho)$.
+
+\begin{table}[]
+\centering
+ \begin{tabular}{|c|c|c|} 
+ \hline
+ Tissue & Density (g/cc) & $f_w$ \\ \hline
+ Fat & 0.95  & 1.00 \\  \hline
+ Breast & 1.02  & 1.00  \\ \hline
+ Water & 1.0  & 1.00  \\  \hline
+ Lung & 1.05  & 0.99  \\  \hline
+ Blood & 1.06 & 0.99 \\ \hline
+ Ovary & 1.05  & 0.99  \\  \hline
+ Brain & 1.04  & 0.99 \\  \hline
+ Muscle & 1.05  & 1.00 \\  \hline
+ Eye lens & 1.07  & 1.00  \\  \hline
+ Testis & 1.04  & 1.00 \\  \hline
+ Cortical bone & 1.92  & 0.00 \\  \hline
+ 
+\end{tabular}
+\caption{Densities and water fractions of human tissues where the water fractions have been computed from a weighted least-squares fit to \ref{eq57}}
+\label{table3}
+\end{table}
+
+\textbf{Displacement Model} includes the third-order polynomial functions shown in fig. \ref{displace} which have continuous first and second order derivatives and satisfy $f_w(\rho) + f_b(\rho) = 1$. This approach avoids the technical complications posed by the derivatives of piece-wise linear functions and has the potential for better accuracy, particularly for tissues that are spectrally similar to water , but have densities larger than water.
+
+\begin{figure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3.1 in]{"displacementmodel"}
+  \caption{}
+  \label{displace}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3.1 in]{"solutionmodel"}
+  \caption{}
+  \label{solution}
+\end{subfigure}
+\caption{Water and bone fraction functions $\left( f_w(\rho) and f_b(\rho) \right)$ computed using (a) displacement model; and (b) solution model}
+\label{fig3}
+\end{figure}
+
+\textbf{Solution Model} assumes that the object contains a mineral solution in water (or some other solvent). In this model, the water-mineral solution density is greater than or equal to the density of water, and the attenuation coefficient can be modelled as
+
+\begin{equation}
+\label{eq59}
+\mu(\mathcal{E}) \approx  m_w(\mathcal{E}) \rho_{w} + m_b(\mathcal{E}) (\rho - \rho_w) = \rho \left[ m_w(\mathcal{E}) \frac{\rho_{w}}{\rho} + m_b(\mathcal{E}) (1 - \frac{\rho_w}{\rho})\right]
+\end{equation} for $\rho \geq \rho_w$. The fraction function for this model are shown in fig. \ref{solution}, and are given by
+
+
+\[
+    f_w(\rho)= 
+\begin{cases}
+    1, \; \; \;  \; \; \; \; \; \; \; \; \; \; \;  \; \; \,   \rho \leqslant \rho_w\    \\     \frac{\rho_w}{\rho}, \; \; \; \; \; \; \; \; \; \; \; \; \; \;   \rho \geq \rho_w
+\end{cases}
+\]
+
+
+\[
+    \; \, f_b(\rho)= 
+\begin{cases}
+    0, \; \; \;  \; \; \; \; \; \; \; \; \; \; \;  \; \; \,  \rho \leqslant \rho_w\    \\     1 - \frac{\rho_w}{\rho}, \; \; \; \; \; \; \; \;   \rho \geq \rho_w
+\end{cases}
+\] where $\rho_w$ is the density of water (or, more generally, the solvent). This model effectively assumes that the object consists of water everywhere whose density has increased because of mineral content. It is shown in this paper that this solution model has performed better than the displacement model.
+
+
+\subsection{Summary}
+
+The key points of the previously described method are mentioned below-
+
+\begin{itemize}
+
+  \item This algorithm assumed that the object can be formed by a combination of multiple materials where a mono-energetic and a poly-energetic X-ray model are formulated.
+  
+  \item The linear attenuation coefficient is modeled as the product of the energy-dependent mass attenuation coefficient $m_k(\mathcal{E})$(known) and energy independent density $\rho_j$, which is described in \ref{eq53}.
+  
+  \item A tissue fraction function $f_{j}^{k}$ has been introduced which can have values of only $0$ and $1$ in the pre-segmented case and can have fraction values in the segmentation-free case. Two models have been described about the procedure of obtaining the values of the fraction, and it is mentioned that solution model performs better than the displacement model in the segmentation free case. In both of the cases, water and bone have been considered as the base substances.
+  
+  \item The objective function is described in \ref{eq51} where $L(\mu)$ is the log likelihood function and $R(\mu)$ is the regularization penalty, and thus the optimum $\mu$ (mono-energetic case) or the optimum $\rho$ (poly-energetic case) is calculated using \ref{eq52} or \ref{eq56}, respectively.
    
 \end{itemize}
